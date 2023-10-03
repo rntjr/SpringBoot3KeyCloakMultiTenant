@@ -34,45 +34,17 @@ public class SecurityConfig {
         JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
 
         List<String> issuers = new ArrayList<>();
-        issuers.add("https://keycloak-hml.grupomultiplica.com.br/auth/realms/multiplicacapital");
-        issuers.add("https://keycloak-hml.grupomultiplica.com.br/auth/realms/beyondbanking-hml");
-        issuers.stream().forEach(issuer -> addManager(authenticationManagers, issuer));
+        issuers.add("http://localhost:8080/realms/tenant1");
+        issuers.add("http://localhost:8080/realms/tenant2");
+        issuers.add("http://localhost:8080/realms/tenant3");
+        issuers.forEach(issuer -> addManager(authenticationManagers, issuer));
 
-        http.csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .anyRequest()
-                .authenticated();
-
-        http.oauth2ResourceServer(bearer -> bearer
-                .authenticationManagerResolver(authenticationManagerResolver));
-
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(STATELESS);
-
-        return http.build();
-
-        /*
-        http
-                .csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .anyRequest()
-                .authenticated();
-
-        http
+        return http
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .authenticationManagerResolver(authenticationManagerResolver)
-                .jwt()
-                .jwtAuthenticationConverter(jwtAuthConverter));
-
-
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(STATELESS);
-
-        return http.build();*/
+                        .authenticationManagerResolver(authenticationManagerResolver))
+                .build();
     }
 
     private void addManager(Map<String, AuthenticationManager> authenticationManagers, String issuer) {
